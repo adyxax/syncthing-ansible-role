@@ -1,0 +1,23 @@
+#!/usr/bin/env perl
+###############################################################################
+#     \_o<     WARNING : This file is being managed by ansible!      >o_/     #
+#     ~~~~                                                           ~~~~     #
+###############################################################################
+
+use strict;
+use warnings;
+
+use JSON::PP;
+use LWP::UserAgent;
+
+my $id = '0000000-0000000-0000000-0000000-0000000-0000000-0000000-0000000';
+
+my $resp = LWP::UserAgent->new()->head('http://localhost:8384/');
+if ($resp->code == 200) {
+	$id = $resp->header('X-Syncthing-Id');
+}
+
+my %output = (
+	'id' => $id,
+);
+print encode_json \%output;
