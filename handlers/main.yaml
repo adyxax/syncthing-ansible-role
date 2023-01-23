@@ -1,4 +1,4 @@
 - name: restart syncthing
   service:
-    name: syncthing
+    name: "{{ syncthing_pre.service }}"
     state: restarted

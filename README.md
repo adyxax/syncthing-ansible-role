@@ -10,14 +10,23 @@ I wanted a role to install and configure syncthing for me and did not find an ex
 - the validation of host_vars which virtually no role in the wild ever does
 - the ability to manage an additional inventory file for devices which ansible cannot manage (like my phone)
 
+## Dependencies
+
+This role relies on `doas` being installed and configured so that your ansible user can run the syncthing cli as the syncthing user.
+
+Here is an example of a `doas.conf` that works for the ansible user:
+```yaml
+permit  nopass  ansible  as  syncthing
+```
+
 ## Role variables
 
 There is a single variable to specify in the `host_vars` of your hosts: `syncthing`. This is a dict that can contain the following keys:
 - address: optional string to specify how to connect to the server, must match the format `tcp://<hostname>` or `tcp://<ip>`. Default value is *dynamic* which means a passive host.
 - shared: a mandatory dict describing the directories this host shares, which can contain the following keys:
   - name: a mandatory string to name the share in the configuration. It must match on all devices that share this folder.
-  - path: the path of the folder on the device. This can difer on each device sharing this data.
-  - peers: a list a strings. Each item should be either the ansible_hostname of another device, or a hostname from the `syncthing_data.yaml` file
+  - path: the path of the folder on the device. This can differ on each device sharing this data.
+  - peers: a list a strings. Each item should be either the `ansible_hostname` of another device, or a hostname from the `syncthing_data.yaml` file
 
 Configuring a host through its `host_vars` looks like this:
 ```yaml

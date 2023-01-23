@@ -1,5 +1,21 @@
+- action: syncthing_pre
+
+- name: enforces service directories
+  file:
+    state: directory
+    path: "{{ item }}"
+    owner: "{{ syncthing_pre.user_group }}"
+    mode: 0700
+  loop:
+    - "{{ syncthing_pre.config_dir }}"
+    - "{{ syncthing_pre.data_dir }}"
+
+- name: Install syncthing dependencies
+  package:
+    name: "{{ syncthing_pre.packages }}"
+
 - name: Push syncthing gathering fact on clients
-  copy:
+  template:
     src: syncthing.fact
     dest: /etc/ansible/facts.d/
     mode: 0500
@@ -10,49 +26,20 @@
   setup: filter=ansible_local
   when: syncthing_gathering_fact.changed
 
-#- debug:
-#    msg: "{{ syncthing_config }}"
-#  changed_when: true
-
 - action: syncthing_validate
 
 - action: syncthing_init
 
-- name: Install syncthing dependencies
-  package:
-    name: "{{ syncthing_config.packages }}"
-
-- name: enforces service directories
-  file:
-    state: directory
-    path: "{{ item }}"
-    owner: syncthing
-    mode: 0700
-  loop: "{{ syncthing_config.folders_to_create }}"
-
 - name: enforces config file
   template:
     src: config.xml
-    dest: "{{ syncthing_config.config_path }}"
-    owner: "{{ syncthing_config.user_group }}"
-    mode: 0640
+    dest: "{{ syncthing_pre.config_dir }}"
+    owner: "{{ syncthing_pre.user_group }}"
+    mode: 0400
   notify: restart syncthing
 
 - name: start and enables service
   service:
-    name: syncthing
+    name: "{{ syncthing_pre.service }}"
     enabled: yes
     state: started
-
-- name: reload ansible_local
-  setup: filter=ansible_local
-  when: syncthing_gathering_fact.changed
-
-- name: enforces config file
-  template:
-    src: config.xml
-    dest: "{{ syncthing_config.config_path }}"
-    owner: "{{ syncthing_config.user_group }}"
-    mode: 0640
-  when: syncthing_gathering_fact.changed
-  notify: restart syncthing
