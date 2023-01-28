@@ -5,7 +5,7 @@
     state: directory
     path: "{{ item }}"
     owner: "{{ syncthing_pre.user_group }}"
-    mode: 0700
+    mode: 0750
   loop:
     - "{{ syncthing_pre.config_dir }}"
     - "{{ syncthing_pre.data_dir }}"
